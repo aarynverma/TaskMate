@@ -24,13 +24,15 @@ export default function ProjectDetailPage() {
             <Head>
                 <title>{project?.name ?? "Project"} | Tasks</title>
             </Head>
-            <main className="min-h-screen p-8 bg-gray-100">
+            <main className="min-h-screen p-8 bg-gray-100 ">
+                <div className="sticky top-6 z-20">
                 <Link
                     href="/"
                     className="inline-block bg-gray-200 px-4 py-1 rounded hover:bg-gray-300 text-sm mb-4"
                 >
-                    ← Home
+                    ← 
                 </Link>
+                </div>
 
                 <h1 className="text-2xl font-bold mb-6">Project: {project?.name}</h1>
                 <TaskBoard projectId={projectId} />

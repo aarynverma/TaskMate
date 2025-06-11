@@ -50,8 +50,8 @@ export default function Home() {
       <Head>
         <title>Task Management App</title>
         <meta name="description" content="Create and manage your projects" />
-      </Head>
-      {session && <div className="flex justify-between gap-4 mt-2 mr-2 ml-2">
+      </Head> 
+      {session && <div className="flex justify-between mr-6 ml-6 sticky top-6 z-20">
         <Link
           href="/create"
           className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

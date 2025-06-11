@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  @apply fixed top-0 left-0 w-full h-[3px] bg-blue-500 z-[9999];
+}
+
+#nprogress .peg {
+  @apply block absolute right-0 w-[100px] h-full;
+  box-shadow: 0 0 10px theme("colors.blue.500"), 0 0 5px theme("colors.blue.500");
+  opacity: 1.0;
+  transform: rotate(3deg) translate(0px, -4px);
+}

@@ -17,12 +17,13 @@ export function TaskCard({ task }: { task: any }) {
     });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
+        // transform: CSS.Transform.toString(transform),
         transition: isDragging ? "none" : "transform 200ms ease",
         opacity: isDragging ? 0.5 : 1,
         cursor: isDragging ? "grabbing" : "default",
         touchAction: "none",
         position: "relative" as const,
+        transform: `${CSS.Transform.toString(transform)} scaleX(1) scaleY(0)`,
     };
 
     const [editing, setEditing] = useState(false);
@@ -65,7 +66,7 @@ export function TaskCard({ task }: { task: any }) {
             ref={setNodeRef}
             {...attributes}
             {...listeners}
-            className={`bg-white p-3 rounded shadow relative ${isDragging ? "z-10" : ""}`}
+            className={`bg-white p-3 rounded shadow relative rounded-lg shadow-md p-4 hover:shadow-lg transition ${isDragging ? "z-10" : ""}`}
             style={style}
             data-task-id={task.id}
         >

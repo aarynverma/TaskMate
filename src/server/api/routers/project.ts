@@ -54,13 +54,36 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  deleteProject: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      return prisma.project.delete({
-        where: { id: input.id, ownerId: ctx.session.user.id },
-      });
-    }),
+ deleteProject: protectedProcedure
+  .input(z.object({ id: z.string() }))
+  .mutation(async ({ input, ctx }) => {
+    const tasks = await prisma.task.findMany({
+      where: { projectId: input.id },
+      select: { id: true },
+    });
+
+    const taskIds = tasks.map((t) => t.id);
+
+    await prisma.taskAssignment.deleteMany({
+      where: {
+        taskId: { in: taskIds },
+      },
+    });
+
+    await prisma.task.deleteMany({
+      where: {
+        id: { in: taskIds },
+      },
+    });
+
+    return prisma.project.delete({
+      where: {
+        id: input.id,
+        ownerId: ctx.session.user.id,
+      },
+    });
+  }),
+
 });
 
 
