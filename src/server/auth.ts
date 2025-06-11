@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
       async sendVerificationRequest({ identifier, url, provider }) {
         const transport = nodemailer.createTransport(provider.server);
 
-        const result = await transport.sendMail({
+        await transport.sendMail({
           to: identifier,
           from: provider.from,
           subject: "Sign in to your account",
@@ -38,7 +38,6 @@ export const authOptions: NextAuthOptions = {
           html: `<p>Click <a href="${url}">here</a> to sign in.</p>`,
         });
 
-        console.log("Preview URL:", nodemailer.getTestMessageUrl(result));
       },
     }),
   ],
