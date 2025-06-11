@@ -1,3 +1,4 @@
+import React from "react";
 import {
     DndContext,
     PointerSensor,
@@ -20,6 +21,26 @@ import { TaskCard } from "./TaskCard";
 import { useEffect, useState } from "react";
 
 const STATUSES = ["todo", "in-progress", "done"] as const;
+
+export function createHandleDragEnd(updateStatus: any, tasks: any[], setTasks: any) {
+  return (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || !active) return;
+
+    const taskId = String(active.id);
+    const newStatus = over.id as string;
+
+    const dragged = tasks.find((t) => t.id === taskId);
+    if (!dragged || dragged.status === newStatus) return;
+
+    setTasks((prev: any[]) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    );
+
+    updateStatus.mutate({ taskId, status: newStatus });
+  };
+}
+
 
 export function TaskBoard({ projectId }: { projectId: string }) {
     const { data: tasks = [], refetch } = api.task.getTasks.useQuery({ projectId });
@@ -49,31 +70,7 @@ export function TaskBoard({ projectId }: { projectId: string }) {
         setDraggingTask(task ?? null);
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || !active) {
-            setDraggingTask(null);
-            return;
-        }
-
-        const taskId = String(active.id);
-        const newStatus = over.id as string;
-
-        const dragged = localTasks.find((t) => t.id === taskId);
-        if (!dragged || dragged.status === newStatus) {
-            setDraggingTask(null);
-            return;
-        }
-
-        setLocalTasks((prev) =>
-            prev.map((t) =>
-                t.id === taskId ? { ...t, status: newStatus } : t
-            )
-        );
-
-        updateStatus.mutate({ taskId, status: newStatus as typeof STATUSES[number] });
-        setDraggingTask(null);
-    };
+    const handleDragEnd = createHandleDragEnd(updateStatus, localTasks, setLocalTasks);
 
     return (
         <DndContext
@@ -83,27 +80,30 @@ export function TaskBoard({ projectId }: { projectId: string }) {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="grid grid-cols-3 gap-4 w-full">
-                {STATUSES.map((status) => (
-                    <Column
-                        key={status}
-                        id={status}
-                        title={status}
-                        tasks={localTasks.filter((t) => t.status === status)}
-                        projectId={projectId}
-                    />
-                ))}
+            <div data-testid="taskboard-dnd-context">
+
+                <div className="grid grid-cols-3 gap-4 w-full">
+                    {STATUSES.map((status) => (
+                        <Column
+                            key={status}
+                            id={status}
+                            title={status}
+                            tasks={localTasks.filter((t) => t.status === status)}
+                            projectId={projectId}
+                        />
+                    ))}
+                </div>
+                <DragOverlay>
+                    {draggingTask && (
+                        <div className="bg-white p-3 rounded shadow w-60">
+                            <p className="font-medium">{draggingTask.title}</p>
+                            {draggingTask.description && (
+                                <p className="text-sm text-gray-500">{draggingTask.description}</p>
+                            )}
+                        </div>
+                    )}
+                </DragOverlay>
             </div>
-            <DragOverlay>
-                {draggingTask && (
-                    <div className="bg-white p-3 rounded shadow w-60">
-                        <p className="font-medium">{draggingTask.title}</p>
-                        {draggingTask.description && (
-                            <p className="text-sm text-gray-500">{draggingTask.description}</p>
-                        )}
-                    </div>
-                )}
-            </DragOverlay>
         </DndContext>
     );
 }

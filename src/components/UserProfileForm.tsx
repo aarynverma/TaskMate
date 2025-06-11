@@ -1,3 +1,4 @@
+import React from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -10,20 +11,26 @@ export function UserProfileForm({
     onSuccessRedirect?: string;
     showBackLink?: boolean;
 }) {
-    const { data: session, status } = useSession();
+    const { data: session, status, update } = useSession();
+    
     const router = useRouter();
-
+    
     const [form, setForm] = useState({
         name: "",
         role: "",
     });
 
+    const refreshSession = async () => {
+      await update();
+    };
+    
     const utils = api.useUtils();
     const updateProfile = api.user.updateProfile.useMutation({
         onSuccess: () => {
             utils.user.getProfile?.invalidate?.();
             alert("Profile updated!");
             router.push(onSuccessRedirect);
+            refreshSession();
         },
     });
 
@@ -52,8 +59,9 @@ export function UserProfileForm({
                 <h1 className="text-2xl font-bold mb-4">Update Profile</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Name</label>
+                        <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
                         <input
+                            id="name"
                             type="text"
                             value={form.name}
                             onChange={(e) =>
@@ -65,10 +73,11 @@ export function UserProfileForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label htmlFor="role" className="block text-sm font-medium mb-1">
                             Role (optional)
                         </label>
                         <input
+                            id="role"
                             type="text"
                             value={form.role}
                             onChange={(e) =>
